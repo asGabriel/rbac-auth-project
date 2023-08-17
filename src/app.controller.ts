@@ -1,9 +1,11 @@
-import { Body, Controller, Headers, Post, Query } from '@nestjs/common';
+import { Body, Controller, Headers, Post, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
-import { UserLoginDto } from './dto/user-login.dto';
 import { Permissions } from './common/permission-decorator';
+import { UserLoginDto } from './dto/user-login.dto';
+import { PermissionDecoratorInterceptor } from './permission-decorator/permission-decorator.interceptor';
 
 @Controller('/auth')
+@UseInterceptors(PermissionDecoratorInterceptor)
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
@@ -25,5 +27,4 @@ export class AppController {
     const decodedToken = await this.appService.verifyToken(authHeader)
     return await this.appService.createAnyContent(data, decodedToken)
   }
-
 }

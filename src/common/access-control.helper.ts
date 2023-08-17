@@ -7,7 +7,7 @@ ac.grant('user')
   .updateOwn('profile')
   .read('anycontent')
 
-ac.grant('admin')
+ac.grant('ADMIN')
   .extend('user')
   .readAny('profile')
   .updateAny('profile')

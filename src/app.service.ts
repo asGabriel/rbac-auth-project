@@ -1,8 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserLoginDto } from './dto/user-login.dto';
 import { helper } from './helper/bcrypt-helper';
 import { PrismaService } from './helper/prisma.service';
+import { NewUserDto } from './dto/new-user.dto';
+import { PayloadDto } from './dto/payload.dto';
+
 
 @Injectable()
 export class AppService {
@@ -28,30 +31,32 @@ export class AppService {
       }
       
       const token = await this.jwtService.signAsync(payload, {secret: "anySecret", expiresIn: '1h'})
-      return token
+      return {access_token: token}
     } catch (error) {
       throw new UnauthorizedException()
     }
   }
 
-  async verifyToken(bearerToken: string): Promise<Object> {
+  async verifyToken(bearerToken: string): Promise<PayloadDto> {
     try {
         const token = bearerToken.replace('Bearer ', '');
-        const verifiedToken = await this.jwtService.verify(token);
+        const verifiedToken = await this.jwtService.verify(token, {secret: "anySecret"});
 
-        const payload = {
-            id: verifiedToken.id,
-            email: verifiedToken.email,
-            role: verifiedToken.role
+        const payload: PayloadDto = {
+            ID: verifiedToken.id,
+            EMAIL: verifiedToken.email,
+            ROLE: verifiedToken.role
         }
 
         return payload;
     } catch (error) {
-        throw new UnauthorizedException(error.message);
+        throw new UnauthorizedException("verifyToken",error.message);
     }
 }
 
   async createAnyContent(data: {CONTENT: string}, decodedToken: object) {
 
   }
+
+
 }
